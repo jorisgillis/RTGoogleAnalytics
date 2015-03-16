@@ -15,17 +15,12 @@ QueryBuilder <- function(query.params.list) {
   kMaxTableIds <- 1
   
   # Query parameters.
-  start.date   <- query.params.list$start.date
-  end.date     <- query.params.list$end.date
-  dimensions   <- query.params.list$dimensions
+  table.id     <- query.params.list$table.id
   metrics      <- query.params.list$metrics
-  segment      <- query.params.list$segment
+  dimensions   <- query.params.list$dimensions
   sort         <- query.params.list$sort
   filters      <- query.params.list$filters
   max.results  <- query.params.list$max.results
-  start.index  <- query.params.list$start.index
-  table.id     <- query.params.list$table.id
-  
   
   access_token <- NULL
   
@@ -34,109 +29,16 @@ QueryBuilder <- function(query.params.list) {
   #' 
   
   SetQueryParams <- function() {   
-    
-    
-    StartDate(start.date)
-    EndDate(end.date)
     Dimensions(dimensions)
     Metrics(metrics)
-    Segment(segment)
     Sort(sort)
     Filters(filters)
     MaxResults(max.results)
-    StartIndex(start.index)
     TableID(table.id)
     AccessToken(access_token)
     
     #Perform Validation
     Validate()
-    return(invisible())
-  }
-  
-    
-  #' Sets the start date.
-  #' Optional.
-  #' All Analytics feed requests must specify a beginning and ending date
-  #' range. If you do not indicate start- and end-date values for the
-  #' request, the server returns a request error.
-  #' Date values are in the form YYYY-MM-DD.
-  #' The earliest valid start-date is 2005-01-01. There is no upper limit
-  #' restriction for a start-date. However, setting a start-date that is
-  #' too  far in the future will most likely return empty results.
-  #'
-  #' @keywords internal   
-  #' @param
-  #'    start.date.param Optional. A start date of the form "YYYY-MM-DD"
-  #'                      as a string. If NULL is used, the start.date
-  #'                      parameter will be unset. If no parameter is
-  #'                      specified, the current start.date value is
-  #'                      returned.
-  #'
-  #'  @return None The start.date value if start.date.param is not set.
-  #'  Un-set the parameter if the value NULL is used.
-  
-  StartDate <- function(start.date.param = NA) {
-    
-    if (is.null(start.date.param)) {
-      start.date <<- NULL
-      return(invisible())
-    }
-    
-    # Returns the current dimension value if no parameter is used.
-    if (is.na(start.date.param)) {
-      return(start.date)
-    }
-    
-    # Error handling.
-    # Check the form of the start.date.param.
-    if (is.na(as.Date(start.date.param, "%Y-%m-%d"))) {
-      stop("A start date must be specified of the form YYYY-MM-DD")
-    }
-    
-    start.date <<- start.date.param
-    return(invisible())
-  }
-  #' Sets the end date.
-  #' Optional.
-  #' All Analytics feed requests must specify a beginning and ending date
-  #' range. If you do not indicate start- and end-date values for the
-  #' request, the server returns a request error.
-  #' Date values are in the form YYYY-MM-DD.
-  #' The earliest valid start-date is 2005-01-01. There is no upper limit
-  #' restriction for a start-date. However, setting a start-date that is
-  #' too far in the future will most likely return empty results.
-  #'
-  #' @keywords internal 
-  #'  @param
-  #'    end.date.param An end date of the form 'YYYY-MM-DD'
-  #'                    as a string. If NULL is used, the end.date.param
-  #'                    parameter will be unset. If no parameter is specified,
-  #'                    the current end.date value is returned.
-  #'
-  #'  @return None The end.date value if end.date.param is not set.
-  #'
-  
-  EndDate <- function(end.date.param = NA) {
-    
-    
-    # Un-set the parameter if the value NULL is used.
-    if (is.null(end.date.param)) {
-      end.date <<- NULL
-      return(invisible())
-    }
-    
-    # Returns the current dimension value if no parameter is used.
-    if (is.na(end.date.param)) {
-      return(end.date)
-    }
-    
-    # Error handling.
-    # Check the form of the end.date.param.
-    if (is.na(as.Date(end.date.param, "%Y-%m-%d"))) {
-      stop("An end date must be specified of the form YYYY-MM-DD")
-    }
-    
-    end.date <<- end.date.param
     return(invisible())
   }
   
@@ -292,66 +194,7 @@ QueryBuilder <- function(query.params.list) {
     return(invisible())
   }
   
-  #' Sets the segments, see dxp:segment in the Account Feed Response section
-  #' in the GA literature online.
-  #' http://code.google.com/apis/analytics/docs/gdata/gdataDeveloperGuide.html
-  #' @keywords internal 
-  #' Optional.
-  #' For general information on advanced segments, see Advanced
-  #' Segmentation in the Help Center. You can request an advanced segment
-  #' in the data feed in two ways:
-  #'
-  #' (1) The numeric ID of a default or custom advanced segment.
-  #'     The account feed returns all default advanced segments and their
-  #'     IDs, as well as any custom segments defined for the account.
-  #'     For more information on segment and their IDs, see dxp:segment in
-  #'     the Account Feed Response section.
-  #' (2) The dynamic parameter in the query.
-  #'     Use this method to segment your data request by one or more
-  #'     dimensions and/or metrics. You can also use regular expressions
-  #'     for segments just as you would for the filters parameter.
-  #'     Dynamic segments use the same Expressions and Operators used for
-  #'     the filters parameter. When using OR boolean logic or AND boolean
-  #'     logic, dynamic segment expressions follow the same rules as for
-  #'     the filters parameter, except that you may use OR boolean logic
-  #'     with both dimensions or metrics.
-  #' Dimensions/metrics combinations in the advanced segment expression
-  #' have fewer restrictions. Except where noted in the table, you can use
-  #' any dimension or metric in combination with another in your filter.
-  #'
-  #' The segment parameter is once again difficult to write checks for,
-  #' as this is a handler we rely on the GA API to report errors with the
-  #' request.
-  #'
-  #' Example:
-  #' gaid::10
-  #' dynamic::ga:medium==referral
-  #' @param
-  #'   segment An advanced segment definition to slice and dice your
-  #'            Analytics data. If NULL is used, the segment parameter will be
-  #'            unset. If no parameter is specified, the current segment value
-  #'            is returned.
-  #'
-  #' @return None The segment value if segment.param is not set.
-  #'
-  
-  Segment <- function(segment.param = NA) {
-  
-    # Un-set the parameter if the value NULL is used.
-    if (is.null(segment.param)) {
-      segment <<- NULL
-      return(invisible())
-    }
-    
-    # Returns the current segment value if no parameter is used.
-    if (is.na(segment.param[1])) {
-      return(segment)
-    }
-    
-    segment <<- segment.param
-    return(invisible())
-  }
-  
+
   #' Sets the sorting criteria.
   #' @keywords internal 
   #' Optional.
@@ -506,51 +349,8 @@ QueryBuilder <- function(query.params.list) {
     return(invisible())
   }
   
-  #' Sets the table id for a user.
-  #' Optional.
-  #' 
-  #' @keywords internal 
-  #' NOTE: This function does not test the table.id is valid from the account
-  #'      profile.
-  #'
-  #' @param
-  #'   start.index.param The starting point of pagination for results to be
-  #'                      returned. If NULL is used, the start.index parameter
-  #'                      will be unset. If no parameter is specified, the
-  #'                     current start.index value is returned.
-  #'
-  #' @return None The start.index value if start.index.param is not set.
-  #'
-  StartIndex <- function(start.index.param = NA) {   
-    
-    # Un-set the parameter if the value NULL is used.
-    if (is.null(start.index.param)) {
-      start.index <<- NULL
-      return(invisible())
-    }
-    
-    # Returns the current sort value if no parameter is used.
-    if (is.na(start.index.param[1])) {
-      return(start.index)
-    }
-    
-    # Error handling.
-    # Ensure that start.index.param is a numeric.
-    if (!is.numeric(start.index.param)) {
-      stop("start.index must be a number")
-    }
-    
-    # Error handling.
-    check.vector.length <- length(start.index.param)
-    if (check.vector.length > 1) {
-      stop("Start index must be a single numeric value")
-    }
-    
-    start.index <<- start.index.param
-    return(invisible())
-  }
+
   #' Sets the table id for a user based on the profile ID entered by the user
-  #' Optional.
   #' The unique table ID used to retrieve the Analytics Report data. 
   #' We run a series of checks that the form of the data is
   #' being correctly entered.
@@ -605,6 +405,8 @@ QueryBuilder <- function(query.params.list) {
     return(invisible())
   }
   
+  
+  ##---------------------------------------------------------------------------
   #' Returns whether the Query has all the required parameters set. These are
   #' the start.date, end.date, metrics, and table.id parameters.
   #'
@@ -615,12 +417,6 @@ QueryBuilder <- function(query.params.list) {
     
     missing.params <- c()
     
-    if (is.null(start.date)) {
-      missing.params <- append(missing.params, "start.date")
-    }
-    if (is.null(end.date)) {
-      missing.params <- append(missing.params, "end.date")
-    }
     if (is.null(metrics)) {
       missing.params <- append(missing.params, "metrics")
     }
@@ -646,7 +442,7 @@ QueryBuilder <- function(query.params.list) {
   }
   
   
-  
+  ##---------------------------------------------------------------------------
   #' A function to reset all the data values to NULL, for a new query.f
   #' The ClearData() function allows a user to reset the query parameters,
   #' (start.date, metrics, etc) back to NULL.
@@ -655,26 +451,21 @@ QueryBuilder <- function(query.params.list) {
   #' @return
   #'  Resets all the query parameters to NULL.
   ClearData <- function() {
-    
-    start.date  <<- NULL
-    end.date    <<- NULL
     dimensions  <<- NULL
     metrics     <<- NULL
-    segment     <<- NULL
     sort        <<- NULL
     filters     <<- NULL
     max.results <<- NULL
-    start.index <<- NULL
     table.id    <<- NULL
     return(invisible())
   }
   
+  ##---------------------------------------------------------------------------
   #' Checks whether a valid authorization token exists.
   #' @keywords internal 
   #' @return None A stop call if the access_token is not valid or not present.
   #'
   AccessToken <- function(access_token.param = NULL) {
-       
     if (is.null(access_token.param)) {
       access_token <<- NULL
       return(invisible())
@@ -701,65 +492,14 @@ QueryBuilder <- function(query.params.list) {
     return(invisible())
   }
   
-  # #' Loads the access token from the system memory into R
-  
-  # LoadAccessToken <- function() {
-  #   load(file.path(path.package("RGoogleAnalytics"),"accesstoken.rda"))
-  #   return(token.list$access_token)
-  # }
-  
-  #' This function updates the start date in the query builder object 
-  #' @keywords internal 
-  #' @param Start Date 
-  #' 
-  #' @return None Sets the Start Date 
-  SetStartDate <- function(start.date) {
-    StartDate(start.date)
-  }  
-  
-  GetStartDate <- function() {
-    return(start.date)
-  }
-  
-  #' This function updates the end date in the query builder object 
-  #' @param End Date 
-  #' 
-  #' @return None Sets the End Date 
-  SetEndDate <- function(end.date) {
-    EndDate(end.date)
-  } 
-  
-  GetEndDate <- function() {
-    return(end.date)
-  }  
-  
-  #' This function updates the start index in the query builder object 
-  #' @param End Date 
-  #' 
-  #' @return None Sets the Start Index in the Query Builder Object 
-  SetStartIndex <- function(start.index) {
-    StartIndex(start.index)
-  }
-  
-  
-  
   return(list("dimensions"   =   Dimensions,
               "metrics"      =   Metrics,
               "sort"         =   Sort,
-              "segments"     =   Segment,
               "filters"      =   Filters,
               "max.results"  =   MaxResults,
-              "start.index"  =   StartIndex,
               "table.id"     =   TableID,
-              "start.date"   =   StartDate,
-              "end.date"     =   EndDate,
               "clear.data"   =   ClearData,
               "Validate"     =   Validate,
               "access_token" =   AccessToken,
-              "GetStartDate"  = GetStartDate,
-              "GetEndDate" = GetEndDate,
-              "SetEndDate" = SetEndDate,
-              "SetStartDate" = SetStartDate,
-              "SetQueryParams" = SetQueryParams,
-              "SetStartIndex" = SetStartIndex))
+              "SetQueryParams" = SetQueryParams))
 }
