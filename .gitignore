@@ -5,4 +5,6 @@ RGoogleAnalytics.Rproj
 .httr-oauth
 .Rbuildignore
 .httr-oauth
-
+get-access-token.js
+googleapi-private-key.pem
+node_modules

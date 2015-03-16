@@ -1,31 +1,35 @@
-#' Query the Google Analytics API for the specified dimensions, metrics and other query parameters
+#' Query the Google Analytics API for the specified dimensions, metrics and
+#' other query parameters
 #' 
-#' This function will retrieve the data by firing the query to the Core Reporting API. It also displays 
-#' status messages after the completion of the query. The user also has the option split the query into 
-#' daywise partitions and paginate the query responses in order to decrease the effect the sampling
+#' This function will retrieve the data by firing the query to the Realtime
+#' Reporting API. It also displays status messages after the completion of the
+#' query. The user also has the option split the query into daywise partitions
+#' and paginate the query responses in order to decrease the effect the sampling
 #' @export
 #' 
-#' @param query.builder Name of the object created using \code{\link{QueryBuilder}}
-#' 
+#' @param query.builder Name of the object created using
+#'   \code{\link{QueryBuilder}}
+#'   
 #' @param token Name of the token object created using \code{\link{Auth}}
 #'   
 #' @param paginate_query  Pages through chunks of results by requesting maximum 
-#' number of allowed rows at a time. Note that
-#' if this argument is set to True, queries will take more longer to complete and use
-#' more Quota. For more on Google Analytics API Quota check 
-#' \url{https://developers.google.com/analytics/devguides/reporting/core/v3/limits-quotas#core_reporting}
-#' 
+#'   number of allowed rows at a time. Note that if this argument is set to
+#'   True, queries will take more longer to complete and use more Quota. For
+#'   more on Google Analytics API Quota check 
+#'   \url{https://developers.google.com/analytics/devguides/reporting/core/v3/limits-quotas#core_reporting}
+#'   
+#'   
 #' @param split_daywise  Splits the query by date range into sub queries of 
-#' single days. Setting this 
-#' argument to True automatically paginates through each daywise query. Note that
-#' if this argument is set to True, queries will take more longer to complete and use
-#' more Quota
-#' 
-#' @param delay Since Pagination and Query splitting fire sucessive queries, there is a 
-#' possibility of getting Quota Eror: Rate Limit Exceeded from the Google Analytics API. 
-#' This parameter can be used to specify a Time delay (in seconds) between successive 
-#' queries in order to stay within the Google Analytics API Rate Limits
-#' 
+#'   single days. Setting this argument to True automatically paginates through
+#'   each daywise query. Note that if this argument is set to True, queries will
+#'   take more longer to complete and use more Quota
+#'   
+#' @param delay Since Pagination and Query splitting fire sucessive queries,
+#'   there is a possibility of getting Quota Eror: Rate Limit Exceeded from the
+#'   Google Analytics API. This parameter can be used to specify a Time delay
+#'   (in seconds) between successive queries in order to stay within the Google
+#'   Analytics API Rate Limits
+#'   
 #' @examples
 #' \dontrun{
 #' # This example assumes that a token object is already created
@@ -37,25 +41,25 @@
 #'                    metrics = "ga:sessions,ga:pageviews",
 #'                    max.results = 1000,
 #'                    table.id = "ga:33093633")
-#'
+#' 
 #' # Create the query object
 #' ga.query <- QueryBuilder(query.list)
-#'
+#' 
 #' # Fire the query to the Google Analytics API
 #' ga.df <- GetReportData(query, oauth_token)
 #' ga.df <- GetReportData(query, oauth_token, split_daywise=True)
 #' ga.df <- GetReportData(query, oauth_token, paginate_query=True)
 #' }
-#'
-#' @return dataframe containing the response from the Google Analytics API 
 #' 
-#' @seealso Prior to executing the query, as a good practice 
-#' queries can be tested in the Google Analytics Query Feed Explorer at \url{http://ga-dev-tools.appspot.com/explorer/}
+#' @return dataframe containing the response from the Google Analytics API
+#'   
+#' @seealso Prior to executing the query, as a good practice queries can be
+#'   tested in the Google Analytics Query Feed Explorer at
+#'   \url{http://ga-dev-tools.appspot.com/explorer/}
 
 GetReportData <- function(query.builder, token, 
                           split_daywise = FALSE,
                           paginate_query = FALSE, delay=0) { 
-  
   # Add an if (exists) block here
   kMaxDefaultRows <- get("kMaxDefaultRows", envir=rga.environment)
   
@@ -72,7 +76,6 @@ GetReportData <- function(query.builder, token,
   
   
   # Set all the Query Parameters
-  
   query.builder$SetQueryParams()
   # query.builder$Validate()
   
@@ -89,7 +92,6 @@ GetReportData <- function(query.builder, token,
     
     total.results <-  ga.list$totalResults
     items.per.page <- ga.list$itemsPerPage
-    contains.sampled.data <- ga.list$containsSampledData
     response.size <- length(ga.list$rows)
     
     if (total.results < kMaxDefaultRows) {
@@ -119,18 +121,7 @@ GetReportData <- function(query.builder, token,
       cat("The API returned", response.size, "results\n")
     }
     
-    # Calculate the Percentage of Visits based on which the query was sampled
-    # Reference : https://developers.google.com/analytics/devguides/reporting/core/v3/reference#sampling
-    if (contains.sampled.data == T) {
-      visits.for.sampled.query <- round(100 * (as.integer(ga.list$sampleSize) /
-                                                 as.integer(ga.list$sampleSpace)),2)
-      cat("The query response contains sampled data. It is based on ", visits.for.sampled.query, "% of your visits.\n")
-      cat("You can split the query day-wise in order to reduce the effect of sampling.\n")
-      cat("Set split_daywise = T in the GetReportData function\n")
-      cat("Note that split_daywise = T will automatically invoke Pagination in each sub-query\n")
-    }
   } else if ((split_daywise == T) || (split_daywise == T && paginate_query == T)) {
-    
     # Clamp Max Results to kMaxDefaultRows while Query Splitting
     # Implement this via SetMaxResults() in future versions
     if (query.builder$max.results() < kMaxDefaultRows) {

@@ -36,15 +36,11 @@ Init <- function(
   max.results = NULL,
   table.id = NULL) {
   
-  query.params.list = list("start.date" = start.date,
-                           "end.date" = end.date,
-                           "dimensions" = dimensions,
+  query.params.list = list("dimensions" = dimensions,
                            "metrics" = metrics,
                            "filters" = filters,
                            "sort" = sort,
-                           "segments" = segments,
                            "max.results" = max.results,
-                           "start.index" = start.index,
                            "table.id" = table.id)
   
   return(query.params.list)
