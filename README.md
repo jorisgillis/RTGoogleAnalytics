@@ -18,8 +18,7 @@ API](https://developers.google.com/analytics/devguides/reporting/realtime/v3/)
 
 To get the current development version from github:
 
-```R # require(devtools) 
-devtools::install_github("jorisgillis/RTGoogleAnalytics") ```
+```devtools::install_github("jorisgillis/RTGoogleAnalytics")```
 
 ## Dependencies
 
