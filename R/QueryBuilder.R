@@ -25,9 +25,6 @@ QueryBuilder <- function(query.params.list) {
   access_token <- NULL
   
   #' Sets the Query Parameters for the Query Builder Object and performs validation
-  #' 
-  #' 
-  
   SetQueryParams <- function() {   
     Dimensions(dimensions)
     Metrics(metrics)

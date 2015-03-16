@@ -10,7 +10,6 @@
 #' 
 #' @importFrom httr GET
 GetDataFeed <- function(query.uri) {
-  
   GA.Data <- GET(query.uri)  
   GA.list <- ParseDataFeedJSON(GA.Data)
   if (is.null(GA.list$rows)) {

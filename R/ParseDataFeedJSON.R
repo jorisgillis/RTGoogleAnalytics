@@ -8,7 +8,6 @@
 #' 
 #' @return GA.list.param GA.list.param list object obtained from this json argument GA.Data.
 ParseDataFeedJSON <- function(GA.Data) {
-  
   GA.list.param <- ParseApiErrorMessage(GA.Data)
   if (!is.null(GA.list.param$code)) {
     stop(paste("code :",
