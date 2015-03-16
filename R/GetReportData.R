@@ -133,7 +133,6 @@ GetReportData <- function(query.builder, token,
     cat("The API returned", nrow(final.df), "results\n")
     
   } else if (paginate_query == T) {
-    
     # Clamp the Max Results parameter to 10000 for efficient query utilization 
     # when paginating
     # Implement SetMaxResults() as a method in QueryBuilder()
