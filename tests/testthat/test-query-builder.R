@@ -17,12 +17,12 @@
 #   expect_that(str(test.list), equals(str((test.QueryBuilder))))
 # }) 
 
-# Tests for the StartDate() function within the QueryBuilder() class.
-context("Start Date")
 
-query.list <- Init(start.date = "2013-11-28",
-                   end.date = "2013-12-05",
-                   dimensions = "ga:date,ga:pagePath,ga:hour",
+##-----------------------------------------------------------------------------
+## Setting up tests
+##-----------------------------------------------------------------------------
+# List of query parameters
+query.list <- Init(dimensions = "ga:date,ga:pagePath,ga:hour",
                    metrics = "ga:sessions,ga:pageviews",
                    sort = "-ga:sessions",
                    max.results = 1234,
@@ -31,37 +31,7 @@ query.list <- Init(start.date = "2013-11-28",
 # Create the Query Builder object so that the query parameters are validated
 query <- QueryBuilder(query.list)
 
-
-test_that("Start Date is set properly", {
-    query$SetStartDate("2014-11-01")
-    expect_that("2014-11-01",equals(query$GetStartDate()))
-})
-
-test_that("Setting Start Date to NULL unsets the parameter", {
-    query$SetStartDate(NULL)
-    expect_that(NULL,equals(query$GetStartDate()))
-})
-
-test_that("Date Value is of the correct data type", {
-    expect_that(query$SetStartDate(20141101),throws_error())
-})
-
-context("End Date")
-
-test_that("End Date is set properly", {
-    query$SetEndDate("2014-11-01")
-    expect_that("2014-11-01",equals(query$GetEndDate()))
-})
-
-test_that("Setting End Date to NULL unsets the parameter", {
-    query$SetEndDate(NULL)
-    expect_that(NULL,equals(query$GetEndDate()))
-})
-
-test_that("Date Value is of the correct data type", {
-    expect_that(query$SetEndDate(20141101),throws_error())
-})
-
+##-----------------------------------------------------------------------------
 context("Dimensions")
 
 test_that("Passing a string as a parameter works", {
@@ -131,20 +101,6 @@ test_that("Length of Dimension vector does not exceed 7 dimensions",{
 test_that("Only Character Vectors are accepted as metrics", {
     metrics.numeric <- c(1, 2, 3, 4, 5)
     expect_that(query$metrics(metrics.numeric),throws_error())  
-})
-
-context("Segments")
-
-test_that("Segments are set properly", {
-  segment.param <- "dynamic::ga:medium==referral"
-  query$segments(segment.param)
-
-  expect_that(segment.param,equals(query$segment()))  
-}) 
-
-test_that("Segments are unset if input is NULL",{
-  query$segments(NULL)
-  expect_that(NULL,equals(query$segment()))  
 })
 
 context("Sort")
@@ -239,25 +195,19 @@ context("To URI")
 # How to handle this
 # This test assumes that the parameters pass the parameters test
 test_that("To URI function is working appropriately", {
-  expected.uri <- paste("https://www.googleapis.com/analytics/v3/data/ga",
-                        "?start-date=2010-05-01",
-                        "&end-date=2010-05-31",
-                        "&dimensions=ga%3adate",
+  expected.uri <- paste("https://www.googleapis.com/analytics/v3/data/realtime",
+                        "?dimensions=ga%3adate",
                         "&metrics=ga%3asessions",
                         "&sort=ga%3adate",
                         "&filters=ga%3asourceMedium%3d~%5egoogle%20%2f%20organic%24%7c%5egoogle%20%2f%20cpc%24",
                         "&max-results=10000",
-                        "&start-index=25",
                         "&ids=ga%3a30661272",
                         sep = "")
-  query.params.list = list("start.date" = "2010-05-01",
-                           "end.date" = "2010-05-31",
-                           "dimensions" = "ga:date",
+  query.params.list = list("dimensions" = "ga:date",
                            "metrics" = "ga:sessions",
                            "sort" = "ga:date",
                            "filters"="ga:sourceMedium=~^google / organic$|^google / cpc$",
                            "max.results" = 10000,
-                           "start.index" = 25,
                            "table.id" = "ga:30661272")
   query.builder = QueryBuilder(query.params.list)
   token <- list(credentials=list(access_token=NULL))
@@ -285,32 +235,12 @@ context("Validate")
 
 builder <- QueryBuilder(query.list)
 
-test_that("Missing Start Date parameter results in an error", {
-  
-  builder$SetEndDate("2010-05-31")
-  builder$metrics("ga:users")
-  builder$table.id("ga:30661272")
-  expect_that(builder$validate(),throws_error())
-})
-
-test_that("Missing End Date parameter results in an error", {
-  
-  builder$SetStartDate("2010-05-31")
-  builder$metrics("ga:users")
-  builder$table.id("ga:30661272")
-  expect_that(builder$validate(),throws_error())
-})
-
 test_that("Missing metrics results in an error", {
-  builder$SetEndDate("2010-05-31")
-  builder$SetStartDate("2010-05-31")
   builder$table.id("ga:30661272")
   expect_that(builder$validate(),throws_error())
 })
 
 test_that("Missing table ID results in an error", {
-  builder$SetEndDate("2010-05-31")
-  builder$SetStartDate("2010-05-31")
   builder$metrics("ga:users")
   expect_that(builder$validate(),throws_error())
 })

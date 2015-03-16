@@ -1,2 +1,2 @@
 library(testthat)
-test_check("RGoogleAnalytics")
+test_check("RTGoogleAnalytics")
